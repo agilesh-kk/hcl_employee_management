@@ -1,3 +1,4 @@
+
 package service;
 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,8 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 import dto.RegisterRequest;
 import dto.LoginRequest;
 import dto.AuthResponse;
+
 import entity.User;
 import entity.Role;
+import entity.RefreshToken;
+
 import repository.UserRepository;
 import repository.RoleRepository;
 
@@ -22,19 +26,22 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
     public AuthService(
             UserRepository userRepository,
             RoleRepository roleRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager,
-            JwtService jwtService) {
+            JwtService jwtService,
+            RefreshTokenService refreshTokenService) {
 
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Transactional
@@ -50,7 +57,7 @@ public class AuthService {
 
         Role role = roleRepository.findByName("ROLE_USER")
                 .orElseThrow(() ->
-                        new IllegalStateException("ROLE_USER not found in database"));
+                    new IllegalStateException("ROLE_USER not found in database"));
 
         User user = new User(
                 request.getUsername(),
@@ -61,9 +68,17 @@ public class AuthService {
 
         userRepository.save(user);
 
-        String token = jwtService.generateToken(user.getUsername());
+        String accessToken =
+                jwtService.generateToken(user.getUsername());
 
-        return new AuthResponse(token, "Registration successful");
+        RefreshToken refreshToken =
+                refreshTokenService.createRefreshToken(user.getUsername());
+
+        return new AuthResponse(
+                accessToken,
+                refreshToken.getToken(),
+                "Registration successful"
+        );
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -75,8 +90,16 @@ public class AuthService {
                 )
         );
 
-        String token = jwtService.generateToken(request.getUsername());
+        String accessToken =
+                jwtService.generateToken(request.getUsername());
 
-        return new AuthResponse(token, "Login successful");
+        RefreshToken refreshToken =
+                refreshTokenService.createRefreshToken(request.getUsername());
+
+        return new AuthResponse(
+                accessToken,
+                refreshToken.getToken(),
+                "Login successful"
+        );
     }
 }

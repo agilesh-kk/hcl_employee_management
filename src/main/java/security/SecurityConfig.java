@@ -1,7 +1,9 @@
+
 package security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -14,8 +16,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -24,6 +28,7 @@ public class SecurityConfig {
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
             CustomUserDetailsService userDetailsService) {
+
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
     }
@@ -39,7 +44,6 @@ public class SecurityConfig {
                 new DaoAuthenticationProvider(userDetailsService);
 
         provider.setPasswordEncoder(passwordEncoder());
-
         return provider;
     }
 
@@ -55,21 +59,42 @@ public class SecurityConfig {
 
         http
             .csrf(csrf -> csrf.disable())
-
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
             .authenticationProvider(authenticationProvider())
-
             .authorizeHttpRequests(auth -> auth
+
                 .requestMatchers(
                     "/api/auth/**",
                     "/swagger-ui/**",
                     "/v3/api-docs/**"
                 ).permitAll()
+
+                // Both USER and ADMIN can view employees
+                .requestMatchers(HttpMethod.GET, "/api/employees/**")
+                .hasAnyRole("USER", "ADMIN")
+
+                // Only ADMIN can create employees
+                .requestMatchers(HttpMethod.POST, "/api/employees/**")
+                .hasRole("ADMIN")
+
+                // Only ADMIN can update employees
+                .requestMatchers(HttpMethod.PUT, "/api/employees/**")
+                .hasRole("ADMIN")
+
+                .requestMatchers(HttpMethod.PATCH, "/api/employees/**")
+                .hasRole("ADMIN")
+
+                // Only ADMIN can delete employees
+                .requestMatchers(HttpMethod.DELETE, "/api/employees/**")
+                .hasRole("ADMIN")
+
+                // Only ADMIN can access admin endpoints
+                .requestMatchers("/api/admin/**")
+                .hasRole("ADMIN")
+
                 .anyRequest().authenticated()
             )
-
             .addFilterBefore(
                 jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class

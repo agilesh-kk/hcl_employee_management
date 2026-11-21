@@ -1,3 +1,4 @@
+
 package security;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +30,10 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .withUsername(user.getUsername())
                 .password(user.getPassword())
                 .authorities(user.getRole().getName())
+                .accountExpired(false)
+                .accountLocked(false)
+                .credentialsExpired(false)
+                .disabled(false)
                 .build();
     }
 }
