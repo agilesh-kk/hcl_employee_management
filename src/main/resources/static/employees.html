@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="dashboard-header">
+    <h2>Employee Management System</h2>
+
+    <div>
+        <a href="dashboard.html">Dashboard</a>
+        <button id="logoutBtn">Logout</button>
+    </div>
+</header>
+
+<main class="employee-container">
+
+    <h2>Employee Management</h2>
+
+    <div class="employee-actions">
+        <a href="employee-form.html" class="btn-primary">
+            Add Employee
+        </a>
+    </div>
+
+    <section class="filter-section">
+
+        <div>
+            <label for="departmentSearch">Search by Department</label>
+            <input
+                    type="text"
+                    id="departmentSearch"
+                    placeholder="Enter department"
+            >
+            <button id="searchDepartmentBtn">Search</button>
+        </div>
+
+        <div>
+            <label for="minSalary">Minimum Salary</label>
+            <input
+                    type="number"
+                    id="minSalary"
+                    placeholder="Enter minimum salary"
+                    min="0"
+            >
+            <button id="searchSalaryBtn">Filter</button>
+        </div>
+
+        <button id="showAllBtn">Show All</button>
+
+    </section>
+
+    <p id="employeeMessage"></p>
+
+    <div class="table-container">
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Department</th>
+                <th>Salary</th>
+                <th>Created At</th>
+            </tr>
+            </thead>
+
+            <tbody id="employeeTableBody">
+            <tr>
+                <td colspan="6">Loading employees...</td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="pagination">
+
+        <button id="previousBtn">Previous</button>
+
+        <span id="pageInfo">Page 1</span>
+
+        <button id="nextBtn">Next</button>
+
+    </div>
+
+</main>
+
+<script src="js/common.js"></script>
+<script src="js/employees.js"></script>
+
+</body>
+</html>

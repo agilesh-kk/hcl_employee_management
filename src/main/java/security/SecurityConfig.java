@@ -64,10 +64,24 @@ public class SecurityConfig {
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
 
+                    // Public frontend pages and resources
                 .requestMatchers(
-                    "/api/auth/**",
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**"
+                        "/",
+                        "/index.html",
+                        "/register.html",
+                        "/dashboard.html",
+                        "/employees.html",
+                        "/employee-form.html",
+                        "/css/**",
+                        "/js/**",
+                        "/favicon.ico"
+                ).permitAll()
+
+                // Public authentication and Swagger endpoints
+                .requestMatchers(
+                        "/api/auth/**",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**"
                 ).permitAll()
 
                 // Both USER and ADMIN can view employees
